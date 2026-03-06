@@ -41,4 +41,19 @@ class AdminController extends Controller
         $doctors = Doctor::with('user')->get();
         return view('admin.staff', compact('doctors'));
     }
+
+    public function reports()
+    {
+        $total_patients = Patient::count();
+        $appointment_stats = Appointment::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $doctor_activity = Doctor::with('user')
+            ->withCount('medicalRecords')
+            ->get();
+
+        return view('admin.reports', compact('total_patients', 'appointment_stats', 'doctor_activity'));
+    }
 }

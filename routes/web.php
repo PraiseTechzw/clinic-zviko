@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index']);
         Route::get('/staff', [AdminController::class, 'staff']);
-        Route::get('/reports', [AdminController::class, 'index']); // Placeholder
+        Route::get('/reports', [AdminController::class, 'reports']);
     });
 
     // Receptionist / Shared Patient Management
