@@ -1,3 +1,26 @@
 {
-  "commits": []
+  "commits": [
+    {
+      "hash": "f91a2350a27c692760d34842671530d185af854b",
+      "message": "[autopilot] feat: initial clinic management system setup\nAutopilot-Commit: true\nAutopilot-Version: 2.4.0\nAutopilot-User: 9b06151f-e74d-41b9-af57-d1d258601e9e\nAutopilot-Signature: c0e9f0b38f66f3588fc1a3ba0cb5b0590d4cda586d6519be0406bc67309d0700",
+      "files": [
+        "gitignore",
+        "bootstrap/app.php",
+        ".autopilot/",
+        ".autopilotignore",
+        ".autopilotrc.json",
+        "app/Http/Controllers/AdminController.php",
+        "app/Http/Controllers/AppointmentController.php",
+        "app/Http/Controllers/AuthController.php",
+        "app/Http/Controllers/DoctorController.php",
+        "app/Http/Controllers/MedicalRecordController.php",
+        "app/Http/Controllers/PatientController.php",
+        "app/Http/Middleware/",
+        "resources/views/admin/",
+        "resources/views/auth/",
+        "resources/views/layouts/"
+      ],
+      "timestamp": "2026-03-06T12:57:00.455Z"
+    }
+  ]
 }

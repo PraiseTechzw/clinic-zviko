@@ -17,6 +17,10 @@ class MedicalRecord extends Model
         'visit_date',
     ];
 
+    protected $casts = [
+        'visit_date' => 'date',
+    ];
+
     public function patient()
     {
         return $this->belongsTo(Patient::class);
