@@ -166,4 +166,17 @@
 
 <style>
     .ls-1 { letter-spacing: 1px; }
+
+    @media print {
+        .sidebar, .navbar, .btn, .col-auto, .text-muted.small { display: none !important; }
+        .col-md-10 { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .card { border: 1px solid #eee !important; box-shadow: none !important; margin-bottom: 2rem !important; }
+        .card-header { background-color: #f8f9fa !important; color: #000 !important; text-transform: uppercase; font-weight: bold; border-bottom: 2px solid #333 !important; }
+        .progress { height: 20px !important; border: 1px solid #ccc !important; }
+        .progress-bar { color: #000 !important; font-weight: bold !important; text-shadow: none !important; }
+        body { background: #fff !important; color: #000 !important; }
+        .table { width: 100% !important; border-collapse: collapse !important; }
+        .table th, .table td { border: 1px solid #ddd !important; padding: 8px !important; font-size: 10pt !important; }
+        .fw-bold { font-weight: bold !important; }
+    }
 </style>

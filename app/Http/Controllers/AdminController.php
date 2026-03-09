@@ -20,6 +20,11 @@ class AdminController extends Controller
             'total_records' => MedicalRecord::count(),
         ];
 
+        $urgent_alerts = Appointment::with(['patient', 'doctor.user'])
+            ->whereIn('status', ['Scheduled', 'Rescheduled'])
+            ->whereBetween('appointment_date', [Carbon::now(), Carbon::now()->addHour()])
+            ->get();
+
         $recent_appointments = Appointment::with(['patient', 'doctor.user'])
             ->latest()
             ->take(5)
@@ -33,7 +38,7 @@ class AdminController extends Controller
             ])
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recent_appointments', 'doctors'));
+        return view('admin.dashboard', compact('stats', 'recent_appointments', 'doctors', 'urgent_alerts'));
     }
 
     public function staff()

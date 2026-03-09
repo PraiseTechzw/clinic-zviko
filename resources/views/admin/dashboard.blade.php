@@ -19,6 +19,47 @@
         </div>
     </div>
 
+    @if($urgent_alerts->count() > 0)
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 bg-danger bg-opacity-10 rounded-4 p-2 shadow-sm animate-pulse-subtle">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="p-3 bg-danger rounded-circle text-white me-4 shadow-sm">
+                                <i class="fas fa-bell fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-danger">Immediate Schedule Alert</h6>
+                                <p class="mb-0 text-dark small">You have <strong>{{ $urgent_alerts->count() }}</strong> appointment(s) commencing within the next 60 minutes. Please confirm clinic readiness.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm rounded-pill px-4" type="button" data-bs-toggle="collapse" data-bs-target="#alertDetails">
+                            View Alerts
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse mt-2" id="alertDetails">
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="row g-3">
+                            @foreach($urgent_alerts as $alert)
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-4 border">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="badge bg-danger">Next Patient</span>
+                                            <span class="badge bg-white text-dark border">{{ $alert->appointment_date->diffForHumans() }}</span>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">{{ $alert->patient->full_name }}</h6>
+                                        <small class="text-muted"><i class="fas fa-user-md me-2"></i>Assigned to Dr. {{ $alert->doctor->user->name }}</small>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Stats Cards -->
     <div class="row g-4">
         <div class="col-md-3">
@@ -201,4 +242,14 @@
        .small-xs { font-size: 0.75rem; }
     .hover-bg-light:hover { background-color: #f8f9fa; }
     .transition-all { transition: all 0.3s ease; }
+    
+    .animate-pulse-subtle {
+        animation: pulse-subtle 2s infinite;
+    }
+    
+    @keyframes pulse-subtle {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.005); }
+        100% { transform: scale(1); }
+    }
 </style>
