@@ -1,84 +1,100 @@
 @extends('layouts.app')
 
-@section('title', 'Doctor Dashboard')
+@section('title', 'Physician Workspace')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-0 text-primary">Physician Workspace</h2>
-            <p class="text-muted small">Daily schedule and patient consultation overview.</p>
+    <div class="row align-items-center mb-5 animate__animated animate__fadeInDown">
+        <div class="col-md-7">
+            <h1 class="fw-bold mb-1" style="letter-spacing: -1px;">Consultation Queue</h1>
+            <p class="text-muted fs-5 mb-0">Manage your daily patient flow and review clinical history.</p>
         </div>
-        <div class="text-end">
-            <h6 class="fw-bold mb-0">{{ now()->format('l, jS M Y') }}</h6>
-            <small class="badge bg-light text-primary border px-3 mt-1 shadow-sm">Online & Active</small>
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+            <div class="d-inline-flex flex-column align-items-end">
+                <h4 class="fw-bold mb-0 text-primary">{{ now()->format('l, jS M Y') }}</h4>
+                <div
+                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 mt-2">
+                    <i class="fas fa-circle-check me-2 animate__animated animate__pulse animate__infinite"></i> System
+                    Online & Active
+                </div>
+            </div>
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 ps-4">{{ session('success') }}</div>
-    @endif
-
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card border-0 shadow-sm animate__animated animate__fadeInUp">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-4 px-4">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-list-ul text-primary me-2"></i>Upcoming Sessions</h5>
+            <span class="badge bg-primary rounded-pill px-3">{{ $appointments->count() }} Pending</span>
+        </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4">Time Entry</th>
-                            <th>Patient Information</th>
-                            <th class="text-center">Status</th>
-                            <th>Initial Intake Notes</th>
-                            <th class="text-end pe-4">Consultation</th>
+                    <thead class="bg-light">
+                        <tr class="text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <th class="ps-4 py-4">Time Entry</th>
+                            <th class="py-4">Patient Profile</th>
+                            <th class="py-4 text-center">Live Status</th>
+                            <th class="py-4">Intake Summary</th>
+                            <th class="py-4 text-end pe-4">Clinical Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="border-top-0">
                         @forelse($appointments as $appt)
-                            <tr>
+                            <tr class="animate__animated animate__fadeIn" style="animation-duration: 0.4s;">
                                 <td class="ps-4">
-                                    <div class="fw-bold text-dark fs-5">{{ $appt->appointment_date->format('H:i') }}</div>
-                                    <small
-                                        class="text-muted text-uppercase fw-bold ls-1 small-xs">{{ $appt->appointment_date->format('A') }}</small>
+                                    <div class="d-flex flex-column">
+                                        <span class="display-6 fw-bold text-dark mb-0"
+                                            style="font-size: 1.5rem;">{{ $appt->appointment_date->format('H:i') }}</span>
+                                        <span class="text-muted text-uppercase fw-bold ls-1"
+                                            style="font-size: 0.65rem;">{{ $appt->appointment_date->format('A') }}</span>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center py-2">
-                                        <div class="avatar-sm rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
-                                            style="width: 38px; height: 38px;">
-                                            <i class="fas fa-user-circle text-secondary fs-5"></i>
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded-pill p-3 me-3 fw-bold"
+                                            style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                            {{ strtoupper(substr($appt->patient->first_name, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <h6 class="mb-0 fw-bold">{{ $appt->patient->full_name }}</h6>
-                                            <small class="text-muted">{{ $appt->patient->gender }},
+                                            <h6 class="mb-0 fw-bold fs-6 text-dark">{{ $appt->patient->full_name }}</h6>
+                                            <small class="text-muted d-block">{{ $appt->patient->gender }},
                                                 {{ \Carbon\Carbon::parse($appt->patient->date_of_birth)->age }} Years</small>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="text-center">
+                                    @php
+                                        $status_color = $appt->status === 'Scheduled' ? 'primary' : 'warning';
+                                    @endphp
                                     <span
-                                        class="badge rounded-pill bg-{{ $appt->status === 'Scheduled' ? 'primary' : 'warning' }} bg-opacity-10 text-{{ $appt->status === 'Scheduled' ? 'primary' : 'warning' }} px-3 px-2 border-0">
+                                        class="badge bg-{{ $status_color }} bg-opacity-10 text-{{ $status_color }} border border-{{ $status_color }} border-opacity-25 px-3 py-2">
                                         {{ $appt->status }}
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="small text-muted text-truncate" style="max-width: 200px;">
-                                        {{ $appt->notes ?: 'No initial intake notes provided.' }}
+                                    <div class="small text-muted text-truncate" style="max-width: 250px;">
+                                        @if($appt->notes)
+                                            <i class="fas fa-quote-left me-1 opacity-25"></i> {{ $appt->notes }}
+                                        @else
+                                            <span class="opacity-50 italic">No intake notes provided.</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="text-end pe-4">
                                     <a href="{{ url('/doctor/consultation/' . $appt->patient->id) }}"
-                                        class="btn btn-success btn-sm rounded-pill px-4 py-2 shadow-sm border-0 d-inline-flex align-items-center">
-                                        <i class="fas fa-stethoscope me-2 small"></i>
-                                        <span>Begin Session</span>
+                                        class="btn btn-primary px-4 py-2 shadow-sm border-0 d-inline-flex align-items-center transition-all">
+                                        <i class="fas fa-stethoscope me-2"></i>
+                                        <span>Start Consult</span>
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center py-5">
-                                    <div class="opacity-25 mb-3">
-                                        <i class="fas fa-notes-medical display-1"></i>
-                                    </div>
-                                    <h5 class="text-muted fw-bold">No Pending Appointments</h5>
-                                    <p class="text-muted small">Your current schedule for today is completely clear.</p>
+                                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-schedule-9475960-7686001.png"
+                                        alt="No data" style="width: 250px; opacity: 0.6;">
+                                    <h5 class="mt-4 text-muted fw-bold">All Caught Up!</h5>
+                                    <p class="text-muted px-5 mb-0">You have no pending appointments scheduled for the remainder
+                                        of the day.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -88,13 +104,3 @@
         </div>
     </div>
 @endsection
-
-<style>
-    .ls-1 {
-        letter-spacing: 1px;
-    }
-
-    .small-xs {
-        font-size: 0.7rem;
-    }
-</style>
