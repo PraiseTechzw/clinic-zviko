@@ -27,4 +27,21 @@ class DoctorController extends Controller
         $patient->load('medicalRecords.doctor.user');
         return view('doctor.consultation', compact('patient'));
     }
+
+    public function records(Request $request)
+    {
+        $query = MedicalRecord::with(['patient', 'doctor.user']);
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->whereHas('patient', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            })->orWhere('diagnosis', 'like', "%{$search}%")
+                ->orWhere('treatment', 'like', "%{$search}%");
+        }
+
+        $records = $query->latest('visit_date')->paginate(15);
+        return view('doctor.records', compact('records'));
+    }
 }

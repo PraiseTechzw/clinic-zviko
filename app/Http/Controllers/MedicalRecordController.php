@@ -20,6 +20,7 @@ class MedicalRecordController extends Controller
 
         $doctor = Auth::user()->doctor;
 
+        // Create Medical Record
         MedicalRecord::create([
             'patient_id' => $validated['patient_id'],
             'doctor_id' => $doctor->id,
@@ -28,6 +29,14 @@ class MedicalRecordController extends Controller
             'visit_date' => $validated['visit_date'],
         ]);
 
-        return redirect('/doctor/dashboard')->with('success', 'Consultation notes saved.');
+        // Transition appointment to Completed if exists
+        \App\Models\Appointment::where('patient_id', $validated['patient_id'])
+            ->where('doctor_id', $doctor->id)
+            ->whereIn('status', ['Scheduled', 'Rescheduled'])
+            ->latest()
+            ->first()
+                ?->update(['status' => 'Completed']);
+
+        return redirect('/doctor/dashboard')->with('success', 'Consultation finalized and appointment marked as completed.');
     }
 }

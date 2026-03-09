@@ -37,6 +37,28 @@ class AppointmentController extends Controller
         return redirect('/appointments')->with('success', 'Appointment scheduled.');
     }
 
+    public function edit(Appointment $appointment)
+    {
+        $patients = Patient::orderBy('last_name')->get();
+        $doctors = Doctor::with('user')->get();
+        return view('appointments.edit', compact('appointment', 'patients', 'doctors'));
+    }
+
+    public function update(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'appointment_date' => 'required|date',
+            'status' => 'required|in:Scheduled,Rescheduled,Cancelled,Completed',
+            'notes' => 'nullable|string',
+        ]);
+
+        $appointment->update($validated);
+
+        return redirect('/appointments')->with('success', 'Appointment updated.');
+    }
+
     public function updateStatus(Request $request, Appointment $appointment)
     {
         $request->validate([
@@ -46,5 +68,11 @@ class AppointmentController extends Controller
         $appointment->update(['status' => $request->status]);
 
         return back()->with('success', 'Appointment status updated.');
+    }
+
+    public function destroy(Appointment $appointment)
+    {
+        $appointment->delete();
+        return redirect('/appointments')->with('success', 'Appointment deleted.');
     }
 }

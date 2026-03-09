@@ -31,7 +31,16 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index']);
         Route::get('/staff', [AdminController::class, 'staff']);
+        Route::get('/staff/create', [AdminController::class, 'createStaff']);
+        Route::post('/staff', [AdminController::class, 'storeStaff']);
+        Route::get('/staff/{user}/edit', [AdminController::class, 'editStaff']);
+        Route::put('/staff/{user}', [AdminController::class, 'updateStaff']);
+        Route::delete('/staff/{user}', [AdminController::class, 'deleteStaff']);
         Route::get('/reports', [AdminController::class, 'reports']);
+
+        // System Settings
+        Route::get('/settings', [\App\Http\Controllers\SystemSettingsController::class, 'index']);
+        Route::post('/settings', [\App\Http\Controllers\SystemSettingsController::class, 'update']);
     });
 
     // Receptionist / Shared Patient Management
@@ -45,7 +54,12 @@ Route::middleware(['auth'])->group(function () {
     // Doctor Routes
     Route::middleware(['role:doctor'])->prefix('doctor')->group(function () {
         Route::get('/dashboard', [DoctorController::class, 'index']);
+        Route::get('/records', [DoctorController::class, 'records']);
         Route::get('/consultation/{patient}', [DoctorController::class, 'consultation']);
         Route::post('/medical-records', [MedicalRecordController::class, 'store']);
     });
+
+    // Profile Management
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit']);
+    Route::post('/profile', [\App\Http\Controllers\ProfileController::class, 'update']);
 });

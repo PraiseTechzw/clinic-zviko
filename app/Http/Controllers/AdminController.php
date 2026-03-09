@@ -38,8 +38,83 @@ class AdminController extends Controller
 
     public function staff()
     {
-        $doctors = Doctor::with('user')->get();
-        return view('admin.staff', compact('doctors'));
+        $users = \App\Models\User::with('doctor')->get();
+        return view('admin.staff', compact('users'));
+    }
+
+    public function createStaff()
+    {
+        return view('admin.staff_create');
+    }
+
+    public function storeStaff(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role' => 'required|in:admin,receptionist,doctor',
+            'specialization' => 'required_if:role,doctor|nullable|string|max:255',
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+            'role' => $validated['role'],
+        ]);
+
+        if ($validated['role'] === 'doctor') {
+            Doctor::create([
+                'user_id' => $user->id,
+                'specialization' => $validated['specialization'] ?? 'General Physician',
+            ]);
+        }
+
+        return redirect('/admin/staff')->with('success', 'Staff member added successfully.');
+    }
+
+    public function editStaff(\App\Models\User $user)
+    {
+        $user->load('doctor');
+        return view('admin.staff_edit', compact('user'));
+    }
+
+    public function updateStaff(Request $request, \App\Models\User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,receptionist,doctor',
+            'specialization' => 'required_if:role,doctor|nullable|string|max:255',
+        ]);
+
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+        ]);
+
+        if ($validated['role'] === 'doctor') {
+            Doctor::updateOrCreate(
+                ['user_id' => $user->id],
+                ['specialization' => $validated['specialization']]
+            );
+        } else {
+            Doctor::where('user_id', $user->id)->delete();
+        }
+
+        return redirect('/admin/staff')->with('success', 'Staff member updated.');
+    }
+
+    public function deleteStaff(\App\Models\User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot delete yourself.');
+        }
+
+        $user->delete();
+        return redirect('/admin/staff')->with('success', 'Staff member removed.');
     }
 
     public function reports()
@@ -50,10 +125,15 @@ class AdminController extends Controller
             ->pluck('count', 'status')
             ->toArray();
 
+        $gender_dist = Patient::selectRaw('gender, count(*) as count')
+            ->groupBy('gender')
+            ->pluck('count', 'gender')
+            ->toArray();
+
         $doctor_activity = Doctor::with('user')
             ->withCount('medicalRecords')
             ->get();
 
-        return view('admin.reports', compact('total_patients', 'appointment_stats', 'doctor_activity'));
+        return view('admin.reports', compact('total_patients', 'appointment_stats', 'doctor_activity', 'gender_dist'));
     }
 }
