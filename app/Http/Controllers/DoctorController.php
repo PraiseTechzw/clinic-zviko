@@ -13,13 +13,28 @@ class DoctorController extends Controller
     public function index()
     {
         $doctor = Auth::user()->doctor;
+
+        // All pending appointments (Scheduled + Rescheduled), ordered by time
         $appointments = Appointment::where('doctor_id', $doctor->id)
             ->with('patient')
             ->whereIn('status', ['Scheduled', 'Rescheduled'])
             ->orderBy('appointment_date')
             ->get();
 
-        return view('doctor.dashboard', compact('appointments'));
+        // Today's appointments (all statuses)
+        $todayAppointments = Appointment::where('doctor_id', $doctor->id)
+            ->whereDate('appointment_date', today())
+            ->get();
+
+        // Stats
+        $stats = [
+            'total_pending' => $appointments->count(),
+            'today_count' => $todayAppointments->whereIn('status', ['Scheduled', 'Rescheduled'])->count(),
+            'completed_today' => $todayAppointments->where('status', 'Completed')->count(),
+            'next_appointment' => $appointments->where('appointment_date', '>=', now())->first(),
+        ];
+
+        return view('doctor.dashboard', compact('appointments', 'stats'));
     }
 
     public function consultation(Patient $patient)
